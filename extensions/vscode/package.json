@@ -1,0 +1,46 @@
+{
+  "name": "coding-agent-extension",
+  "version": "0.1.0",
+  "publisher": "coding-agent",
+  "displayName": "Coding Agent",
+  "description": "VS Code extension that integrates the coding agent",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": ["Other"],
+  "activationEvents": [
+    
+    
+    
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "codingAgent.chat",
+        "title": "Coding Agent: Chat"
+      },
+      {
+        "command": "codingAgent.plan",
+        "title": "Coding Agent: Plan Change"
+      },
+      {
+        "command": "codingAgent.apply",
+        "title": "Coding Agent: Apply Change"
+      }
+    ]
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "watch": "tsc -watch -p tsconfig.json"
+  },
+  "dependencies": {
+    "@coding-agent/agent-core": "workspace:*",
+    "@coding-agent/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.1.6",
+    "@types/node": "^18.14.1",
+    "@types/vscode": "^1.80.0"
+  }
+}

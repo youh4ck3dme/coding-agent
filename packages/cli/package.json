@@ -1,0 +1,26 @@
+{
+  "name": "@coding-agent/cli",
+  "version": "0.1.0",
+  "bin": {
+    "coding-agent": "dist/index.js"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "ts-node src/index.ts",
+    "test": "echo 'no tests yet'",
+    "lint": "echo 'no lint script defined'"
+  },
+  "dependencies": {
+    "commander": "^10.0.0",
+    "@coding-agent/agent-core": "workspace:*",
+    "@coding-agent/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.1.6",
+    "ts-node": "^10.9.1",
+    "@types/node": "^18.14.1",
+    "@types/commander": "^2.12.2"
+  }
+}

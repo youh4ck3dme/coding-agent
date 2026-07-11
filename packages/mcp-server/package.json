@@ -1,0 +1,25 @@
+{
+  "name": "@coding-agent/mcp-server",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "ts-node src/index.ts",
+    "start": "node dist/index.js",
+    "test": "echo 'no tests yet'",
+    "lint": "echo 'no lint script defined'"
+  },
+  "dependencies": {
+    "@coding-agent/agent-core": "workspace:*",
+    "@coding-agent/shared": "workspace:*",
+    "@coding-agent/tooling": "workspace:*",
+    "@fastify/static": "^7.0.4",
+    "fastify": "^4.20.2"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.1",
+    "typescript": "^5.1.6",
+    "@types/node": "^18.14.1"
+  }
+}

@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-pure-black: #000000;
+  --surface-card: #09090b;
+  --surface-dock: #0c0c0e;
+  --surface-terminal: #020202;
+  --border-subtle: rgba(39, 39, 42, 0.8);
+  --border-dark: #18181b;
+  --accent-glow: rgba(99, 102, 241, 0.05);
+  --accent-brand-start: #7c3aed;
+  --accent-brand-end: #4f46e5;
+  --text-primary: #f4f4f5;
+  --text-secondary: #a1a1aa;
+  --text-muted: #52525b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  height: 100dvh;
+  margin: 0;
+  overflow: hidden;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--bg-pure-black);
+  color: var(--text-primary);
+}
+
+@layer utilities {
+  .glass-panel {
+    @apply bg-[#0c0c0e]/80 backdrop-blur-xl border border-zinc-800/80 rounded-2xl shadow-premium-glow;
+  }
+
+  .text-gradient-brand {
+    background: linear-gradient(135deg, var(--accent-brand-start), var(--accent-brand-end));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(63, 63, 70, 0.6);
+  border-radius: 999px;
+}
