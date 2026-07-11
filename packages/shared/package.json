@@ -1,8 +1,13 @@
 {
   "name": "@coding-agent/shared",
   "version": "0.1.0",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/config.js",
+  "types": "dist/config.d.ts",
+  "exports": {
+    "./dist/config": "./dist/config.js",
+    "./dist/logger": "./dist/logger.js",
+    "./dist/types": "./dist/types.js"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "dev": "tsc -p tsconfig.json --watch",
