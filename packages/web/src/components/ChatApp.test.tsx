@@ -140,6 +140,53 @@ describe('ChatApp', () => {
     expect(screen.queryByText(/script/i)).not.toBeInTheDocument();
   });
 
+  it('sends selected project workspace root with chat requests', async () => {
+    let capturedBody: Record<string, unknown> | undefined;
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+        const url = String(input);
+        const method = init?.method ?? 'GET';
+        if (url.includes('/health')) {
+          return Promise.resolve(new Response(JSON.stringify({ ok: true }), { status: 200 }));
+        }
+        if (url.includes('/api/projects')) {
+          return Promise.resolve(
+            new Response(
+              JSON.stringify({
+                projects: [
+                  { name: 'coding-agent', path: '/Users/demo/coding-agent' },
+                  { name: 'other-app', path: '/Users/demo/other-app' }
+                ],
+                selectedProject: '/Users/demo/coding-agent'
+              }),
+              { status: 200 }
+            )
+          );
+        }
+        if (url.includes('/api/chat') && method === 'POST') {
+          capturedBody = JSON.parse(String(init?.body)) as Record<string, unknown>;
+          return Promise.resolve(
+            new Response(JSON.stringify({ text: 'OK', toolCalls: [] }), { status: 200 })
+          );
+        }
+        return Promise.resolve(new Response('{}', { status: 404 }));
+      })
+    );
+    const user = userEvent.setup();
+
+    render(<ChatApp />);
+    await screen.findByText(/Som pripravený/i);
+
+    await user.click(screen.getByRole('button', { name: /coding-agent/i }));
+    await user.click(screen.getByRole('button', { name: /other-app/i }));
+    await user.type(screen.getByPlaceholderText(/Opýtaj sa na kód/i), 'Test projektu');
+    await user.click(screen.getByRole('button', { name: 'Odoslať' }));
+
+    await screen.findByText('OK');
+    expect(capturedBody?.workspaceRoot).toBe('/Users/demo/other-app');
+  });
+
   it('shows loading indicator while waiting for response', async () => {
     let resolveChat: (value: Response) => void = () => {};
     const chatPromise = new Promise<Response>(resolve => {

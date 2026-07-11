@@ -46,6 +46,10 @@ pnpm --filter coding-agent-extension build
 
 Environment variables must be provided via a local `.env.local` file (gitignored). Copy `.env.example` to `.env.local` and fill in your secrets.
 
+## Výber lokálneho projektu
+
+V pravom hornom rohu webového rozhrania je tlačidlo s aktuálne zvoleným projektom. Otvorí vyhľadateľný zoznam lokálnych repozitárov a projektov; výber určuje pracovný priestor pre všetky následné požiadavky agenta. Katalóg predvolene prehľadáva aktuálny workspace a priečinky `~/Projects`, `~/Developer`, `~/Code`, `~/Documents` a `~/Desktop`. Vlastné priečinky nastav cez `PROJECTS_ROOTS` v `.env.local`.
+
 ## Workspace Layout
 
 ```

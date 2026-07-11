@@ -79,7 +79,7 @@ export async function buildServer() {
     ui: existsSync(resolveWebDist())
   }));
 
-  server.post('/api/chat', async (request, reply) => {
+  server.post('/api/chat', withHttpErrors(async (request, reply) => {
     const body = request.body as {
       mode?: string;
       message?: string;
@@ -108,7 +108,7 @@ export async function buildServer() {
       text: extractAgentText(result),
       toolCalls: result.toolCalls
     };
-  });
+  }));
 
   server.get('/api/projects', async () => ({
     projects: listLocalProjects(config.WORKSPACE_ROOT),

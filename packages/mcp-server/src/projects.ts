@@ -1,6 +1,7 @@
 import { existsSync, readdirSync, realpathSync, statSync } from 'fs';
 import { homedir } from 'os';
 import { basename, join, resolve } from 'path';
+import { HttpRequestError } from './errors';
 
 const PROJECT_MARKERS = ['.git', 'package.json', 'pnpm-workspace.yaml', 'Cargo.toml', 'go.mod', 'pyproject.toml'];
 const IGNORED_DIRECTORIES = new Set([
@@ -28,6 +29,14 @@ export type LocalProject = {
   path: string;
 };
 
+type ProjectCatalog = {
+  key: string;
+  projects: LocalProject[];
+  paths: Set<string>;
+};
+
+let catalogCache: ProjectCatalog | null = null;
+
 function isDirectory(path: string): boolean {
   try {
     return statSync(path).isDirectory();
@@ -43,7 +52,14 @@ function projectSearchRoots(defaultWorkspace: string): string[] {
     .filter(Boolean) ?? [];
   const roots = configured.length > 0
     ? configured
-    : [defaultWorkspace, join(homedir(), 'Projects'), join(homedir(), 'Developer'), join(homedir(), 'Code'), join(homedir(), 'Documents'), join(homedir(), 'Desktop')];
+    : [
+        defaultWorkspace,
+        join(homedir(), 'Projects'),
+        join(homedir(), 'Developer'),
+        join(homedir(), 'Code'),
+        join(homedir(), 'Documents'),
+        join(homedir(), 'Desktop')
+      ];
 
   return [...new Set(roots.filter(isDirectory).map(path => realpathSync(path)))];
 }
@@ -52,7 +68,11 @@ function isProjectDirectory(path: string): boolean {
   return PROJECT_MARKERS.some(marker => existsSync(join(path, marker)));
 }
 
-export function listLocalProjects(defaultWorkspace: string): LocalProject[] {
+function catalogCacheKey(defaultWorkspace: string): string {
+  return `${realpathSync(defaultWorkspace)}:${process.env.PROJECTS_ROOTS ?? ''}`;
+}
+
+function scanLocalProjects(defaultWorkspace: string): LocalProject[] {
   const projects = new Map<string, LocalProject>();
 
   function visit(path: string, depth: number): void {
@@ -83,15 +103,45 @@ export function listLocalProjects(defaultWorkspace: string): LocalProject[] {
   return [...projects.values()].sort((left, right) => left.path.localeCompare(right.path));
 }
 
+function loadProjectCatalog(defaultWorkspace: string): ProjectCatalog {
+  const key = catalogCacheKey(defaultWorkspace);
+  if (catalogCache?.key === key) {
+    return catalogCache;
+  }
+
+  const projects = scanLocalProjects(defaultWorkspace);
+  catalogCache = {
+    key,
+    projects,
+    paths: new Set(projects.map(project => project.path))
+  };
+  return catalogCache;
+}
+
+/** Clears the in-memory catalog cache (for tests). */
+export function clearProjectCatalogCache(): void {
+  catalogCache = null;
+}
+
+export function listLocalProjects(defaultWorkspace: string): LocalProject[] {
+  return loadProjectCatalog(defaultWorkspace).projects;
+}
+
 export function resolveProjectRoot(workspaceRoot: unknown, defaultWorkspace: string): string {
   if (typeof workspaceRoot !== 'string' || !workspaceRoot.trim()) {
     return realpathSync(defaultWorkspace);
   }
 
-  const selected = resolve(workspaceRoot);
-  const project = listLocalProjects(defaultWorkspace).find(item => item.path === selected);
-  if (!project) {
-    throw new Error('Selected workspace is not in the local project catalog');
+  let selected: string;
+  try {
+    selected = realpathSync(resolve(workspaceRoot));
+  } catch {
+    throw new HttpRequestError('Selected workspace path does not exist', 404);
   }
-  return project.path;
+
+  const catalog = loadProjectCatalog(defaultWorkspace);
+  if (!catalog.paths.has(selected)) {
+    throw new HttpRequestError('Selected workspace is not in the local project catalog', 403);
+  }
+  return selected;
 }
