@@ -2,23 +2,12 @@
 import { Command } from 'commander';
 import { createInterface } from 'readline';
 import { runAgent, extractAgentText } from '@coding-agent/agent-core';
-import type { AgentContext, WriteApprovalDetails } from '@coding-agent/agent-core/dist/tools';
+import type { AgentContext } from '@coding-agent/agent-core/dist/tools';
 import { log } from '@coding-agent/shared/dist/logger';
 import { agentRoles, type AgentRole } from '@coding-agent/shared/dist/types';
+import { formatApprovalPrompt, isAgentRole, isApprovalAnswer } from './helpers';
 
 let autoApprove = false;
-
-function formatApprovalPrompt(details: WriteApprovalDetails): string {
-  const lines = [
-    `\nProposed change: ${details.file}`,
-    details.changeRatio !== undefined
-      ? `Change ratio: ${(details.changeRatio * 100).toFixed(1)}%`
-      : undefined,
-    details.diff ? `\n${details.diff}\n` : undefined,
-    'Approve this change? (y/N) '
-  ];
-  return lines.filter(Boolean).join('\n');
-}
 
 function cliApprovalHandler(): AgentContext['onApprove'] {
   return async (_action, details) => {
@@ -30,7 +19,7 @@ function cliApprovalHandler(): AgentContext['onApprove'] {
       rl.question(formatApprovalPrompt(details), resolve);
     });
     rl.close();
-    return /^y(es)?$/i.test(answer.trim());
+    return isApprovalAnswer(answer);
   };
 }
 
@@ -53,10 +42,6 @@ async function runCommand(
     log(`Tools used: ${result.toolCalls.map(call => call.name).join(', ')}`);
   }
   return { text, toolCalls: result.toolCalls, role, mode };
-}
-
-function isAgentRole(value: string): value is AgentRole {
-  return agentRoles.includes(value as AgentRole);
 }
 
 const program = new Command();

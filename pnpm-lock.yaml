@@ -70,6 +70,9 @@ importers:
       typescript:
         specifier: ^5.1.6
         version: 5.9.3
+      vitest:
+        specifier: ^2.1.8
+        version: 2.1.9(@types/node@18.19.130)(jsdom@25.0.1)
 
   packages/mcp-server:
     dependencies:
@@ -114,6 +117,9 @@ importers:
       typescript:
         specifier: ^5.1.6
         version: 5.9.3
+      vitest:
+        specifier: ^2.1.8
+        version: 2.1.9(@types/node@18.19.130)(jsdom@25.0.1)
 
   packages/security:
     dependencies:
@@ -162,6 +168,9 @@ importers:
       typescript:
         specifier: ^5.1.6
         version: 5.9.3
+      vitest:
+        specifier: ^2.1.8
+        version: 2.1.9(@types/node@18.19.130)(jsdom@25.0.1)
 
   packages/tooling:
     dependencies:
@@ -175,6 +184,9 @@ importers:
       typescript:
         specifier: ^5.1.6
         version: 5.9.3
+      vitest:
+        specifier: ^2.1.8
+        version: 2.1.9(@types/node@18.19.130)(jsdom@25.0.1)
 
   packages/web:
     dependencies:

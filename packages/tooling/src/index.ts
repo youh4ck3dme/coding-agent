@@ -3,10 +3,24 @@ import { existsSync } from 'fs';
 import { join } from 'path';
 import { promisify } from 'util';
 
-const execFileAsync = promisify(execFile);
+type ExecFileAsync = (
+  command: string,
+  args: string[],
+  options: { cwd: string; maxBuffer: number }
+) => Promise<{ stdout: string; stderr: string }>;
 
-function packageManager(workspaceRoot: string): 'pnpm' | 'npm' {
+let execFileAsync: ExecFileAsync = promisify(execFile) as ExecFileAsync;
+
+export function packageManager(workspaceRoot: string): 'pnpm' | 'npm' {
   return existsSync(join(workspaceRoot, 'pnpm-lock.yaml')) ? 'pnpm' : 'npm';
+}
+
+export function __setExecFileAsyncForTests(fn: ExecFileAsync): void {
+  execFileAsync = fn;
+}
+
+export function __resetExecFileAsyncForTests(): void {
+  execFileAsync = promisify(execFile) as ExecFileAsync;
 }
 
 async function runCommand(

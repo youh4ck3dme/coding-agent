@@ -12,7 +12,7 @@
     "dev": "node scripts/dev.mjs",
     "dev:stop": "node scripts/dev.mjs stop",
     "dev:status": "node scripts/dev.mjs status",
-    "test": "pnpm --filter @coding-agent/shared test && pnpm --filter @coding-agent/security test && pnpm --filter @coding-agent/agent-core test && pnpm --filter @coding-agent/mcp-server test && pnpm --filter @coding-agent/web test",
+    "test": "pnpm -r run test",
     "lint": "pnpm -r run lint"
   }
 }

@@ -9,7 +9,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "dev": "ts-node src/index.ts",
-    "test": "echo 'no tests yet'",
+    "test": "vitest run",
     "lint": "echo 'no lint script defined'"
   },
   "dependencies": {
@@ -21,6 +21,7 @@
     "typescript": "^5.1.6",
     "ts-node": "^10.9.1",
     "@types/node": "^18.14.1",
-    "@types/commander": "^2.12.2"
+    "@types/commander": "^2.12.2",
+    "vitest": "^2.1.8"
   }
 }
