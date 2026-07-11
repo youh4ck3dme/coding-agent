@@ -67,6 +67,36 @@ coding-agent/
     └── vscode/                # Visual Studio Code extension
 ```
 
+## Testing
+
+The monorepo has **79 automated tests** across all workspace packages. Run them with:
+
+```bash
+pnpm test
+```
+
+CI runs the same command on every push to `main`.
+
+| Package | Tests | Focus |
+|---------|------:|-------|
+| `shared` | 3 | env config, MCP URL defaults |
+| `security` | 5 | secret redaction, path allowlists |
+| `mistral-client` | 3 | API request shape, error handling |
+| `tooling` | 8 | git wrappers, pnpm/npm detection |
+| `storage` | 2 | logs and approvals persistence |
+| `agent-core` | 12 | role scope, tools, diff, MCP queue |
+| `mcp-server` | 15 | errors, mutex, paths, projects |
+| `cli` | 6 | approval prompt, role validation |
+| `web` | 25 | ChatApp, XSS sanitization, auto-scroll |
+
+### iPhone Air 17 viewport
+
+Mobile layout is covered in `packages/web/src/components/ChatApp.iphone-air.test.tsx` using a **420×912** CSS viewport (DPR 3). Tests verify `100dvh` shell, project picker, mode switcher, chat submit, offline badge, and Enter-key send.
+
+### VS Code extension — tests not required (for now)
+
+The extension in `extensions/vscode/` is a thin wrapper (~95 lines) that registers three commands and delegates to `@coding-agent/agent-core`, which is already tested. Adding `@vscode/test-electron` would be heavy setup for little extra confidence. **Add extension tests later** when the extension grows (webview UI, diff preview, settings).
+
 ## Known Limitations
 
 - The MCP server included here is intentionally minimal and should be extended to include additional tools following the safe patterns in `packages/mcp-server/src/index.ts`.
