@@ -10,7 +10,7 @@ export type ResolvedPath = {
 };
 
 export function normalizeRelativePath(relative: string): string {
-  return relative.replace(/^\/+/, '').replace(/\\/g, '/');
+  return relative.replace(/\\/g, '/').replace(/^\/+/, '');
 }
 
 function isInsideRoot(root: string, absolute: string): boolean {

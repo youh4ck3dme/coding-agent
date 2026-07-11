@@ -14,7 +14,7 @@ const BACKEND_PREFIXES = [
 ];
 
 export function normalizeToolPath(file: string): string {
-  return file.replace(/^\/+/, '').replace(/\\/g, '/');
+  return file.replace(/\\/g, '/').replace(/^\/+/, '');
 }
 
 export function isPathAllowedForRole(file: string, role?: AgentRole): boolean {

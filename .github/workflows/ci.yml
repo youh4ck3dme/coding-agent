@@ -25,6 +25,12 @@ jobs:
 
       - run: pnpm build
 
+      - run: pnpm --filter @coding-agent/shared test
+
+      - run: pnpm --filter @coding-agent/security test
+
+      - run: pnpm --filter @coding-agent/agent-core test
+
       - run: pnpm --filter @coding-agent/mcp-server test
 
       - run: pnpm --filter @coding-agent/web test
