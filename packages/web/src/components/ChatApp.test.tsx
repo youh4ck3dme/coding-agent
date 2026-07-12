@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import ChatApp from './ChatApp';
+import ChatApp, { runtimeModeForHostname } from './ChatApp';
 
 const projectsPayload = {
   projects: [{ name: 'coding-agent', path: '/Users/demo/coding-agent' }],
@@ -53,6 +53,17 @@ describe('ChatApp', () => {
     expect(screen.getByRole('button', { name: 'Ask' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Plan' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Apply' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Lokálne' })).toHaveAttribute('aria-current', 'page');
+    expect(screen.getByRole('link', { name: 'Cloud' })).toHaveAttribute(
+      'href',
+      'https://gaming-pc.tail8c034f.ts.net/'
+    );
+  });
+
+  it('detects local and cloud hostnames', () => {
+    expect(runtimeModeForHostname('127.0.0.1')).toBe('local');
+    expect(runtimeModeForHostname('localhost')).toBe('local');
+    expect(runtimeModeForHostname('gaming-pc.tail8c034f.ts.net')).toBe('cloud');
   });
 
   it('switches to plan mode', async () => {

@@ -30,6 +30,14 @@ const SUGGESTIONS = [
   'Naplánuj nový MCP endpoint'
 ];
 
+const LOCAL_APP_URL = 'http://127.0.0.1:3000/';
+const CLOUD_APP_URL =
+  import.meta.env.VITE_CLOUD_APP_URL ?? 'https://gaming-pc.tail8c034f.ts.net/';
+
+export function runtimeModeForHostname(hostname: string): 'local' | 'cloud' {
+  return hostname === '127.0.0.1' || hostname === 'localhost' ? 'local' : 'cloud';
+}
+
 /**
  * Main chat shell for the coding agent web UI.
  *
@@ -39,6 +47,7 @@ const SUGGESTIONS = [
  * - Auto-scroll follows new messages only when the user is already near the bottom.
  */
 export default function ChatApp() {
+  const runtimeMode = runtimeModeForHostname(window.location.hostname);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 'welcome',
@@ -172,7 +181,7 @@ export default function ChatApp() {
       </div>
 
       <header className="relative z-10 shrink-0 px-4 pt-4 pb-2 md:px-6">
-        <div className="glass-panel px-4 py-3 flex items-center justify-between gap-4">
+        <div className="glass-panel px-4 py-3 flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-[11px] uppercase tracking-[0.2em] text-zinc-500 font-medium">
               Coding Agent
@@ -181,7 +190,34 @@ export default function ChatApp() {
               AI Builder Studio
             </h1>
           </div>
-          <div className="relative flex items-center gap-2 text-xs">
+          <div className="relative ml-auto flex flex-wrap items-center justify-end gap-2 text-xs">
+            <nav
+              aria-label="Režim pripojenia"
+              className="inline-flex items-center rounded-full border border-zinc-800 bg-black/50 p-0.5"
+            >
+              <a
+                href={LOCAL_APP_URL}
+                aria-current={runtimeMode === 'local' ? 'page' : undefined}
+                className={`rounded-full px-2.5 py-1 transition-colors ${
+                  runtimeMode === 'local'
+                    ? 'bg-emerald-500/15 text-emerald-300'
+                    : 'text-zinc-500 hover:text-zinc-300'
+                }`}
+              >
+                Lokálne
+              </a>
+              <a
+                href={CLOUD_APP_URL}
+                aria-current={runtimeMode === 'cloud' ? 'page' : undefined}
+                className={`rounded-full px-2.5 py-1 transition-colors ${
+                  runtimeMode === 'cloud'
+                    ? 'bg-indigo-500/20 text-indigo-200'
+                    : 'text-zinc-500 hover:text-zinc-300'
+                }`}
+              >
+                Cloud
+              </a>
+            </nav>
             <button
               type="button"
               onClick={() => setProjectPickerOpen(open => !open)}
