@@ -1,5 +1,5 @@
 import { existsSync, statSync } from 'fs';
-import { resolve, join } from 'path';
+import { isAbsolute, relative as relativePath, resolve } from 'path';
 import { HttpRequestError } from './errors';
 
 const SEARCH_PREFIXES = ['', 'packages', 'extensions'];
@@ -16,10 +16,8 @@ export function normalizeRelativePath(relative: string): string {
 function isInsideRoot(root: string, absolute: string): boolean {
   const normalizedRoot = resolve(root);
   const normalizedAbsolute = resolve(absolute);
-  return (
-    normalizedAbsolute === normalizedRoot ||
-    normalizedAbsolute.startsWith(normalizedRoot + '/')
-  );
+  const pathFromRoot = relativePath(normalizedRoot, normalizedAbsolute);
+  return pathFromRoot === '' || (!pathFromRoot.startsWith('..') && !isAbsolute(pathFromRoot));
 }
 
 function buildCandidates(relative: string): string[] {
@@ -29,7 +27,7 @@ function buildCandidates(relative: string): string[] {
   if (!normalized.includes('/')) {
     for (const prefix of SEARCH_PREFIXES) {
       if (prefix) {
-        candidates.add(join(prefix, normalized));
+        candidates.add(`${prefix}/${normalized}`);
       }
     }
   }
