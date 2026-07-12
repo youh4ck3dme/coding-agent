@@ -1,4 +1,4 @@
-import { extractAgentText, runAgent } from '@coding-agent/agent-core';
+import { extractAgentText, generateFollowUpSuggestions, runAgent } from '@coding-agent/agent-core';
 import { AgentMode } from '@coding-agent/shared/dist/types';
 import fastifyStatic from '@fastify/static';
 import Fastify from 'fastify';
@@ -108,10 +108,17 @@ export async function buildServer() {
       workspaceRoot: workspaceRootFrom(body)
     });
 
-    return {
-      text: extractAgentText(result),
-      toolCalls: result.toolCalls
-    };
+    const text = extractAgentText(result);
+    let suggestions: string[] = [];
+    try {
+      suggestions = await generateFollowUpSuggestions(mode, message, text);
+    } catch (error) {
+      console.error('[mcp-server] follow-up suggestions failed', {
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+
+    return { text, toolCalls: result.toolCalls, suggestions };
   }));
 
   server.get('/api/projects', async () => ({

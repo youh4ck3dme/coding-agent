@@ -74,7 +74,8 @@ describe('ChatApp', () => {
           new Response(
             JSON.stringify({
               text: 'Odpoveď agenta',
-              toolCalls: [{ name: 'read_file' }]
+              toolCalls: [{ name: 'read_file' }],
+              suggestions: ['Chceš vidieť konkrétny súbor?', 'Mám pripraviť plán úprav?']
             }),
             { status: 200 }
           )
@@ -92,6 +93,50 @@ describe('ChatApp', () => {
     expect(await screen.findByText('Čo je v agent-core?')).toBeInTheDocument();
     expect(await screen.findByText('Odpoveď agenta')).toBeInTheDocument();
     expect(screen.getByText(/Tools: read_file/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Chceš vidieť konkrétny súbor?' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Mám pripraviť plán úprav?' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Chceš vidieť konkrétny súbor?' })).toHaveAttribute(
+      'title',
+      'Vykonať túto otázku'
+    );
+  });
+
+  it('sends an AI follow-up suggestion when clicked', async () => {
+    const chatBodies: Array<{ message: string }> = [];
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+        const url = String(input);
+        const method = init?.method ?? 'GET';
+        if (url.includes('/health')) {
+          return Promise.resolve(new Response(JSON.stringify({ ok: true }), { status: 200 }));
+        }
+        if (url.includes('/api/projects')) {
+          return Promise.resolve(new Response(JSON.stringify(projectsPayload), { status: 200 }));
+        }
+        if (url.includes('/api/chat') && method === 'POST') {
+          chatBodies.push(JSON.parse(String(init?.body)) as { message: string });
+          return Promise.resolve(new Response(JSON.stringify({
+            text: 'Hotovo',
+            toolCalls: [],
+            suggestions: chatBodies.length === 1
+              ? ['Ukáž mi detaily', 'Čo mám spraviť ďalej?']
+              : []
+          }), { status: 200 }));
+        }
+        return Promise.resolve(new Response('{}', { status: 404 }));
+      })
+    );
+    const user = userEvent.setup();
+
+    render(<ChatApp />);
+    await screen.findByText(/Som pripravený/i);
+    await user.type(screen.getByPlaceholderText(/Opýtaj sa na kód/i), 'Dokonči úlohu');
+    await user.click(screen.getByRole('button', { name: 'Odoslať' }));
+    await user.click(await screen.findByRole('button', { name: 'Ukáž mi detaily' }));
+
+    await waitFor(() => expect(chatBodies).toHaveLength(2));
+    expect(chatBodies[1].message).toBe('Ukáž mi detaily');
   });
 
   it('shows error bubble when chat request fails', async () => {

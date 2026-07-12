@@ -16,6 +16,44 @@ export type AgentRunResult = {
   raw: unknown;
 };
 
+export async function generateFollowUpSuggestions(
+  mode: AgentMode,
+  input: string,
+  answer: string
+): Promise<string[]> {
+  const response = await chatCompletion([
+    {
+      role: 'system',
+      content:
+        'Navrhni 2 alebo 3 krátke, praktické pokračovacie otázky v slovenčine. ' +
+        'Musia prirodzene nadväzovať na úlohu a odpoveď. Vráť iba JSON pole reťazcov, bez markdownu.'
+    },
+    {
+      role: 'user',
+      content: `Režim: ${mode}\nÚloha: ${input}\nOdpoveď: ${answer.slice(0, 6000)}`
+    }
+  ]);
+  const content = (response as { choices?: Array<{ message?: { content?: unknown } }> })
+    .choices?.[0]?.message?.content;
+  if (typeof content !== 'string') {
+    return [];
+  }
+
+  try {
+    const parsed = JSON.parse(content.replace(/^```(?:json)?\s*|\s*```$/g, '').trim());
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+    return parsed
+      .filter((item): item is string => typeof item === 'string')
+      .map(item => item.trim())
+      .filter(Boolean)
+      .slice(0, 3);
+  } catch {
+    return [];
+  }
+}
+
 type ChatMessage = Record<string, unknown>;
 
 type ParsedToolCall = {

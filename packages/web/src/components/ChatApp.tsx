@@ -10,6 +10,7 @@ type Message = {
   content: string;
   tools?: string[];
   error?: boolean;
+  suggestions?: string[];
 };
 
 type Project = {
@@ -139,7 +140,8 @@ export default function ChatApp() {
           id: crypto.randomUUID(),
           role: 'assistant',
           content: payload.text || '(Žiadna textová odpoveď)',
-          tools: payload.toolCalls?.map((t: { name: string }) => t.name)
+          tools: payload.toolCalls?.map((t: { name: string }) => t.name),
+          suggestions: Array.isArray(payload.suggestions) ? payload.suggestions.slice(0, 3) : []
         }
       ]);
     } catch (error) {
@@ -256,10 +258,10 @@ export default function ChatApp() {
         ref={scrollRef}
         className="relative z-10 flex-1 overflow-y-auto px-4 md:px-6 py-4 space-y-4 min-h-0"
       >
-        {messages.map(message => (
+        {messages.map((message, index) => (
           <div
             key={message.id}
-            className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+            className={`flex flex-col ${message.role === 'user' ? 'items-end' : 'items-start'}`}
           >
             <div
               className={`max-w-[min(100%,42rem)] px-4 py-3 rounded-2xl text-sm leading-relaxed ${
@@ -279,6 +281,32 @@ export default function ChatApp() {
                 </p>
               )}
             </div>
+            {message.role === 'assistant' &&
+              !message.error &&
+              index === messages.length - 1 &&
+              message.suggestions &&
+              message.suggestions.length >= 2 && (
+                <div className="mt-2 flex max-w-[min(100%,42rem)] flex-wrap gap-2" aria-label="Odporúčané pokračovanie">
+                  {message.suggestions.map(suggestion => (
+                    <button
+                      key={suggestion}
+                      type="button"
+                      onClick={() => void sendMessage(suggestion)}
+                      disabled={loading}
+                      title="Vykonať túto otázku"
+                      className="group inline-flex items-center gap-2 rounded-xl border border-indigo-500/20 bg-indigo-950/20 px-3 py-2 text-left text-xs text-indigo-200 transition-colors hover:border-indigo-400/40 hover:bg-indigo-950/40 disabled:opacity-40"
+                    >
+                      <span>{suggestion}</span>
+                      <span
+                        aria-hidden="true"
+                        className="ml-auto inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-indigo-400/25 bg-indigo-500/10 text-sm text-indigo-300 transition-all group-hover:translate-x-0.5 group-hover:border-indigo-300/50 group-hover:bg-indigo-500/20"
+                      >
+                        →
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
           </div>
         ))}
 
