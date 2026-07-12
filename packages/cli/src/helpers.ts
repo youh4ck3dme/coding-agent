@@ -1,7 +1,9 @@
 import type { WriteApprovalDetails } from '@coding-agent/agent-core/dist/tools';
 import { agentRoles, type AgentRole } from '@coding-agent/shared/dist/types';
 
-export function formatApprovalPrompt(details: WriteApprovalDetails): string {
+export function formatApprovalPrompt(
+  details: Pick<WriteApprovalDetails, 'file' | 'changeRatio' | 'diff'>
+): string {
   const lines = [
     `\nProposed change: ${details.file}`,
     details.changeRatio !== undefined

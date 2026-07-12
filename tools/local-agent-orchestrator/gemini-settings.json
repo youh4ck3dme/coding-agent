@@ -1,0 +1,13 @@
+{
+  "security": {
+    "auth": {
+      "selectedType": "oauth-personal"
+    }
+  },
+  "general": {
+    "defaultApprovalMode": "plan"
+  },
+  "privacy": {
+    "usageStatisticsEnabled": false
+  }
+}

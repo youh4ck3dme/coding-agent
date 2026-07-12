@@ -1,11 +1,13 @@
 import Database from 'better-sqlite3';
 
-type StorageDb = {
+export type PreparedStatement = {
+  run: (...args: any[]) => any;
+  all: (...args: any[]) => any[];
+};
+
+export type StorageDb = {
   exec(sql: string): void;
-  prepare(sql: string): {
-    run: (...args: unknown[]) => void;
-    all: () => unknown[];
-  };
+  prepare(sql: string): PreparedStatement;
 };
 
 function createDatabase(): StorageDb {

@@ -1,0 +1,10 @@
+[project]
+name = "local-agent-orchestrator"
+version = "0.1.0"
+description = "Local read-only orchestration across Mistral, Copilot, Grok, Gemini and Codex"
+requires-python = ">=3.12"
+dependencies = [
+  "mistralai>=2.5,<3",
+  "python-dotenv>=1.0,<2",
+]
+

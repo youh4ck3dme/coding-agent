@@ -67,6 +67,17 @@ coding-agent/
     └── vscode/                # Visual Studio Code extension
 ```
 
+## Local multi-agent orchestrator
+
+The optional orchestrator in `tools/local-agent-orchestrator/` asks several independent AI agents for advice in parallel and merges the successful answers into one audited result. It includes three Mistral roles plus Codex, Claude Code, GitHub Copilot, Grok and Gemini CLI adapters.
+
+```powershell
+pnpm orchestrator:doctor
+pnpm orchestrator "Review this repository and recommend the three highest-impact improvements"
+```
+
+Agents run in read-only or plan mode. A failed or unauthenticated provider is recorded in `diagnostics.json` without stopping the other agents. See [the orchestrator guide](docs/multi-agent-orchestrator.md) for architecture, authentication and safety details.
+
 ## Testing
 
 The monorepo has **79 automated tests** across all workspace packages. Run them with:
