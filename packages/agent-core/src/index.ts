@@ -26,7 +26,10 @@ export async function generateFollowUpSuggestions(
       role: 'system',
       content:
         'Navrhni 2 alebo 3 krátke, praktické pokračovacie otázky v slovenčine. ' +
-        'Musia prirodzene nadväzovať na úlohu a odpoveď. Vráť iba JSON pole reťazcov, bez markdownu.'
+        'Musia prirodzene nadväzovať na úlohu a odpoveď. ' +
+        'Nevymýšľaj cesty ani stav projektu. Ak odpoveď niečo neoverila, navrhni najprv overenie. ' +
+        'Nenavrhuj vytváranie, presun alebo mazanie súborov bez potvrdenej potreby. ' +
+        'Vráť iba JSON pole reťazcov, bez markdownu.'
     },
     {
       role: 'user',
