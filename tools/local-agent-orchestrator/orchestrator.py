@@ -104,6 +104,71 @@ async def run_process(
     return AgentResult(name, "error", "", retries, round(elapsed, 2), last_error)
 
 
+async def run_grok_heavy(
+    prompt: str,
+    workspace: Path,
+    settings: dict[str, Any],
+) -> AgentResult:
+    """Run isolated Grok candidates without the CLI's interleaved best-of-n output."""
+    started = asyncio.get_running_loop().time()
+    candidate_count = int(settings.get("grok_best_of_n", 3))
+    candidate_jobs = []
+    for candidate_number in range(1, candidate_count + 1):
+        candidate_prompt = (
+            f"{prompt}\n\n"
+            f"Si nezávislý Grok kandidát {candidate_number}/{candidate_count}. "
+            "Vráť iba svoj čistý finálny návrh. Nespúšťaj subagentov a neopisuj interný postup."
+        )
+        candidate_jobs.append(
+            run_process(
+                f"Grok kandidát {candidate_number}",
+                [
+                    "grok",
+                    "--single",
+                    candidate_prompt,
+                    "--model",
+                    str(settings["grok_model"]),
+                    "--permission-mode",
+                    "plan",
+                    "--no-subagents",
+                    "--output-format",
+                    "plain",
+                    "--cwd",
+                    str(workspace),
+                ],
+                cwd=workspace,
+                timeout=int(settings["timeout_seconds"]),
+                retries=int(settings["retries"]),
+            )
+        )
+
+    candidates = list(await asyncio.gather(*candidate_jobs))
+    successful = [candidate for candidate in candidates if candidate.status == "ok"]
+    elapsed = round(asyncio.get_running_loop().time() - started, 2)
+    if not successful:
+        errors = "; ".join(candidate.error for candidate in candidates if candidate.error)
+        return AgentResult(
+            "Grok Heavy (3 kandidáti)",
+            "error",
+            "",
+            max((candidate.attempts for candidate in candidates), default=0),
+            elapsed,
+            errors[-3000:],
+        )
+
+    answer = "\n\n".join(
+        f"## Grok kandidát {index}\n{candidate.answer}"
+        for index, candidate in enumerate(successful, start=1)
+    )
+    return AgentResult(
+        "Grok Heavy (3 kandidáti)",
+        "ok",
+        answer,
+        max(candidate.attempts for candidate in successful),
+        elapsed,
+    )
+
+
 async def run_mistral(
     name: str,
     role: str,
@@ -192,13 +257,7 @@ async def orchestrate(task: str, workspace: Path) -> Path:
                 timeout=timeout,
                 retries=retries,
             ),
-            run_process(
-                "Grok Heavy (best-of-3)",
-                ["grok", "--single", prompt, "--model", str(settings["grok_model"]), "--best-of-n", str(settings["grok_best_of_n"]), "--check", "--permission-mode", "plan", "--output-format", "plain", "--cwd", str(workspace)],
-                cwd=workspace,
-                timeout=timeout,
-                retries=retries,
-            ),
+            run_grok_heavy(prompt, workspace, settings),
             run_process(
                 "Codex CLI",
                 ["codex", "exec", "--ephemeral", "--sandbox", "read-only", "--skip-git-repo-check", "-C", str(workspace), "-"],

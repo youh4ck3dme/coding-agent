@@ -14,6 +14,7 @@
     "dev:status": "node scripts/dev.mjs status",
     "orchestrator": "powershell -ExecutionPolicy Bypass -File tools/local-agent-orchestrator/run.ps1",
     "orchestrator:doctor": "powershell -ExecutionPolicy Bypass -File tools/local-agent-orchestrator/doctor.ps1",
+    "orchestrator:e2e": "powershell -ExecutionPolicy Bypass -File tools/local-agent-orchestrator/e2e.ps1",
     "test": "pnpm -r run test",
     "lint": "pnpm -r run lint"
   }

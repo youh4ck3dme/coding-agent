@@ -40,14 +40,22 @@ Diagnostiku inštalácie spustíš bez odhalenia kľúčov:
 .\doctor.ps1
 ```
 
+Skutočný E2E test UI, Mistral API a všetkých CLI agentov spustíš:
+
+```powershell
+pnpm orchestrator:e2e
+```
+
+Test vyžaduje od každého providera unikátny marker a vytvorí `runs/e2e-<čas>/e2e-report.md` aj strojovo čitateľný `e2e-results.json`. Stav `blocked_external` znamená, že lokálny adaptér je dostupný, ale účet poskytovateľa odmietol požiadavku.
+
 ## Stav poskytovateľov na tomto PC
 
 - Mistral 3×: funkčný.
 - Codex CLI: funkčný.
-- Grok heavy režim: funkčný; jeden test best-of-3 trval približne tri minúty.
-- Copilot CLI: nainštalovaný, ale potrebuje vlastné OAuth prihlásenie. Spusti `copilot login` a potvrď ho v prehliadači. Classic `ghp_` token Copilot nepodporuje.
+- Grok heavy režim: tri izolované Grok procesy bežia paralelne. Finálny Mistral editor ich vyhodnotí spolu s ostatnými odpoveďami; nepoužíva sa chybný vstavaný `--best-of-n`, ktorý vo verzii 0.2.93 mieša výstupy kandidátov.
+- Copilot CLI: funkčný cez vlastné OAuth prihlásenie (`copilot login`). Classic `ghp_` token Copilot nepodporuje.
 - Gemini CLI: adaptér je pripravený, ale v `config.json` je dočasne vypnutý (`enable_gemini: false`), pretože Google server vrátil `IneligibleTierError` pre aktuálny osobný účet. Po nastavení podporovaného účtu alebo `GEMINI_API_KEY` ho zapni hodnotou `true`.
-- Claude Code: nainštalovaný, bezpečný adaptér je zapojený, ale treba dokončiť `claude auth login`. Beží v režime `plan`, bez nástrojov, bez perzistencie relácie a s limitom 0,25 USD na jeden beh.
+- Claude Code: funkčný. Beží v režime `plan`, bez nástrojov, bez perzistencie relácie a s limitom 0,25 USD na jeden beh.
 
 Ak Copilot alebo Gemini nie sú autorizované, flow sa nezastaví. Ich stav bude `error` v `diagnostics.json` a finálnu odpoveď zostavia úspešní agenti.
 

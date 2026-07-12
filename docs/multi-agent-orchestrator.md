@@ -29,7 +29,7 @@ All advisers run concurrently. Each provider has a timeout and two attempts. A p
 | Mistral critic | Failure, security and correctness review | API text response only |
 | Mistral implementer | Smallest practical implementation | API text response only |
 | Copilot | Independent coding recommendation | shell and write tools denied |
-| Grok | Heavy review through three `grok-composer-2.5-fast` candidates and self-check | plan mode |
+| Grok | Heavy review through three isolated parallel `grok-composer-2.5-fast` candidates | plan mode |
 | Gemini | Long-context independent review | plan mode |
 | Codex | Repository-aware coding review | read-only sandbox, ephemeral session |
 | Claude | Independent architecture and code review | plan mode, no tools, no persistence, USD cap |
@@ -61,6 +61,8 @@ gemini
 Codex uses its existing desktop/CLI authentication. Gemini can alternatively use `GEMINI_API_KEY`. Never commit `.env` or paste keys into tasks.
 
 Gemini is disabled by default in `config.json` because the currently configured personal account is rejected by Google's service. Set `enable_gemini` to `true` only after authentication works.
+
+Run `pnpm orchestrator:e2e` to test the UI/MCP endpoint and every provider adapter with unique response markers. The command writes a Markdown report and JSON evidence under `tools/local-agent-orchestrator/runs/e2e-<time>/`. A provider rejected by its external account tier is reported as `blocked_external`, separately from local implementation errors.
 
 ## Run
 
