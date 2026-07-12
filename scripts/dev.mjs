@@ -52,11 +52,22 @@ async function isHealthy() {
 
 function killPort(port) {
   try {
-    execSync(`lsof -ti tcp:${port} | xargs kill -9 2>/dev/null || true`, {
-      cwd: root,
-      stdio: 'ignore',
-      shell: true
-    });
+    if (process.platform === 'win32') {
+      const script = [
+        `$connections = Get-NetTCPConnection -LocalPort ${port} -State Listen -ErrorAction SilentlyContinue`,
+        '$connections | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }'
+      ].join('; ');
+      spawnSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', script], {
+        cwd: root,
+        stdio: 'ignore'
+      });
+    } else {
+      execSync(`lsof -ti tcp:${port} | xargs kill -9 2>/dev/null || true`, {
+        cwd: root,
+        stdio: 'ignore',
+        shell: true
+      });
+    }
   } catch {
     // No process on port.
   }
