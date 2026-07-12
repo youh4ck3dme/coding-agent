@@ -1,0 +1,10 @@
+{
+  "workspace": ".",
+  "timeout_seconds": 300,
+  "retries": 2,
+  "mistral_model": "mistral-small-latest",
+  "grok_model": "grok-composer-2.5-fast",
+  "grok_best_of_n": 3,
+  "enable_gemini": false,
+  "max_answer_chars": 10000
+}
