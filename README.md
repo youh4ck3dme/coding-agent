@@ -1,5 +1,7 @@
 # Coding Agent
 
+[![CI](https://github.com/youh4ck3dme/coding-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/youh4ck3dme/coding-agent/actions/workflows/ci.yml)
+
 This repository contains a local-first coding assistant built on the Mistral platform. It is designed as a monorepo with multiple packages, a command-line interface (CLI) and a Visual Studio Code extension. The assistant orchestrates conversations with Mistral models, executes safe local tooling via a **machine control protocol (MCP)** server, and provides an opinionated architecture for working on source code in a secure and auditable way.
 
 ## Features
