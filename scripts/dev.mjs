@@ -8,6 +8,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const env = loadProjectEnv(root);
 const mcpUrl = env.MCP_SERVER_URL || `http://127.0.0.1:${env.MCP_SERVER_PORT || 3000}`;
 const mcpPort = Number(new URL(mcpUrl).port || env.MCP_SERVER_PORT || 3000);
+const workspaceRoot = env.WORKSPACE_ROOT || root;
 const [, , command, ...rest] = process.argv;
 
 function parseEnvFile(path) {
@@ -88,7 +89,11 @@ function runCli(mode, args) {
   const result = spawnSync(
     'pnpm',
     ['--filter', '@coding-agent/cli', 'dev', mode, ...args],
-    { cwd: root, stdio: 'inherit', env: { ...process.env, ...env, MCP_SERVER_URL: mcpUrl } }
+    {
+      cwd: root,
+      stdio: 'inherit',
+      env: { ...process.env, ...env, MCP_SERVER_URL: mcpUrl, WORKSPACE_ROOT: workspaceRoot }
+    }
   );
   process.exit(result.status ?? 1);
 }
@@ -120,7 +125,13 @@ async function startMcpForeground() {
   const child = spawn('pnpm', ['--filter', '@coding-agent/mcp-server', 'dev'], {
     cwd: root,
     stdio: 'inherit',
-    env: { ...process.env, ...env, MCP_SERVER_URL: mcpUrl, MCP_SERVER_PORT: String(mcpPort) }
+    env: {
+      ...process.env,
+      ...env,
+      MCP_SERVER_URL: mcpUrl,
+      MCP_SERVER_PORT: String(mcpPort),
+      WORKSPACE_ROOT: workspaceRoot
+    }
   });
 
   child.on('exit', code => process.exit(code ?? 1));
@@ -137,7 +148,13 @@ async function ensureMcpBackground() {
     cwd: root,
     stdio: 'ignore',
     detached: true,
-    env: { ...process.env, ...env, MCP_SERVER_URL: mcpUrl, MCP_SERVER_PORT: String(mcpPort) }
+    env: {
+      ...process.env,
+      ...env,
+      MCP_SERVER_URL: mcpUrl,
+      MCP_SERVER_PORT: String(mcpPort),
+      WORKSPACE_ROOT: workspaceRoot
+    }
   });
   child.unref();
 
