@@ -57,6 +57,10 @@ function withHttpErrors(handler: RouteHandler): RouteHandler {
       return await handler(request, reply);
     } catch (error) {
       const httpError = toHttpError(error);
+      console.error('[mcp-server] request failed', {
+        statusCode: httpError.statusCode,
+        message: httpError.message
+      });
       return reply.status(httpError.statusCode).send({ error: httpError.message });
     }
   };
